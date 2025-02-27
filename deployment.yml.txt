@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-express-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-express-app
+  template:
+    metadata:
+      labels:
+        app: my-express-app
+    spec:
+      containers:
+        - name: my-express-app
+          image: <اسم-الصورة-في-الـ-registry>
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-express-app
+spec:
+  selector:
+    app: my-express-app
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: my-express-app
+spec:
+  to:
+    kind: Service
+    name: my-express-app
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
